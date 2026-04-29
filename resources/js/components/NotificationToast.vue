@@ -1,5 +1,11 @@
 <template>
-    <div v-if="message" class="fixed top-4 right-4 px-4 py-2 rounded text-white" :class="messageClass">
+    <div
+        v-if="message"
+        class="fixed top-4 right-4 z-50 max-w-xs px-4 py-2 rounded text-white shadow-lg"
+        :class="messageClass"
+        :role="props.type === 'error' ? 'alert' : 'status'"
+        :aria-live="props.type === 'error' ? 'assertive' : 'polite'"
+        aria-atomic="true">
         {{ message }}
     </div>
 </template>

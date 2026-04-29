@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\View\View;
+
+class AuthController extends Controller
+{
+    public function showLogin(): View
+    {
+        return view('auth.login');
+    }
+
+    public function showRegister(): View
+    {
+        return view('auth.register');
+    }
+
+    public function login(Request $request): RedirectResponse|JsonResponse
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Credenciais invalidas.',
+                    'errors' => [
+                        'email' => ['Credenciais invalidas.'],
+                    ],
+                ], 422);
+            }
+
+            return back()->withErrors([
+                'email' => 'Credenciais invalidas.',
+            ])->onlyInput('email');
+        }
+
+        $request->session()->regenerate();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Autenticado com sucesso.',
+                'redirect' => '/todo',
+            ]);
+        }
+
+        return redirect()->intended('/todo');
+    }
+
+    public function register(Request $request): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+
+        $user = User::create($validated);
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Conta criada com sucesso.',
+                'redirect' => '/todo',
+            ], 201);
+        }
+
+        return redirect('/todo');
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
+}
