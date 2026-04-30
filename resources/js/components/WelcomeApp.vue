@@ -50,7 +50,7 @@
               href="/todo"
               class="inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300"
             >
-              Comecar agora
+              Começar agora
             </a>
           </div>
         </div>

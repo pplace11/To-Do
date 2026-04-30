@@ -4,6 +4,7 @@ import WelcomeApp from './components/WelcomeApp.vue';
 import TaskCreatePage from './components/TaskCreatePage.vue';
 import LoginPage from './components/LoginPage.vue';
 import RegisterPage from './components/RegisterPage.vue';
+import ProfilePage from './components/ProfilePage.vue';
 
 const path = window.location.pathname.replace(/\/+$/, '') || '/';
 let AppComponent = WelcomeApp;
@@ -16,6 +17,8 @@ if (path === '/todo') {
 	AppComponent = LoginPage;
 } else if (path === '/register') {
 	AppComponent = RegisterPage;
+} else if (path === '/perfil') {
+	AppComponent = ProfilePage;
 }
 
 createApp(AppComponent).mount('#app');

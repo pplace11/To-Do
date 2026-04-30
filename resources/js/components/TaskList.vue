@@ -1,88 +1,152 @@
 <template>
-    <div v-if="tasks.length === 0" class="text-center text-gray-600 dark:text-slate-300 py-8" role="status" aria-live="polite">
-        <p>Nenhuma tarefa encontrada. Adicione uma nova!</p>
+    <div v-if="tasks.length === 0"
+        class="flex flex-col items-center justify-center gap-3 py-20 text-gray-400 dark:text-slate-500"
+        role="status" aria-live="polite">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+            class="h-12 w-12 text-gray-200 dark:text-slate-700" aria-hidden="true">
+            <path fill-rule="evenodd" d="M7.502 6h7.128A3.375 3.375 0 0 1 18 9.375v9.375a3 3 0 0 0 3-3V6.108c0-1.505-1.125-2.811-2.664-2.94a48.972 48.972 0 0 0-.673-.05A3 3 0 0 0 15 1.5h-1.5a3 3 0 0 0-2.663 1.618c-.225.015-.45.032-.673.05C8.662 3.295 7.554 4.542 7.502 6ZM13.5 3A1.5 1.5 0 0 0 12 4.5h4.5A1.5 1.5 0 0 0 15 3h-1.5Z" clip-rule="evenodd" />
+            <path fill-rule="evenodd" d="M3 9.375C3 8.339 3.84 7.5 4.875 7.5h9.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 0 1 3 20.625V9.375Zm9.586 4.594a.75.75 0 0 0-1.172-.938l-2.476 3.096-.908-.907a.75.75 0 0 0-1.06 1.06l1.5 1.5a.75.75 0 0 0 1.116-.062l3-3.75Z" clip-rule="evenodd" />
+        </svg>
+        <p class="text-sm font-medium">Nenhuma tarefa encontrada</p>
+        <p class="text-xs text-gray-300 dark:text-slate-600">Adicione uma nova tarefa para começar!</p>
     </div>
-    <ul v-else class="space-y-3" aria-label="Lista de tarefas">
+
+    <ul v-else-if="viewMode === 'lista'" aria-label="Lista de tarefas">
         <li v-for="task in tasks" :key="task.id"
-            class="bg-gray-100 dark:bg-slate-800 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center gap-3 hover:bg-gray-200 dark:hover:bg-slate-700 transition border border-transparent dark:border-slate-700">
-            <div class="flex-1">
-                <h3 class="flex items-center gap-2 font-semibold text-lg" :class="priorityColor(task.priority)">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
-                        <path d="M9 2.25a.75.75 0 0 0-.75.75v1.5H6A2.25 2.25 0 0 0 3.75 6.75v12A2.25 2.25 0 0 0 6 21h12a2.25 2.25 0 0 0 2.25-2.25v-12A2.25 2.25 0 0 0 18 4.5h-2.25V3A.75.75 0 0 0 15 2.25H9Zm5.25 2.25h-4.5v-.75h4.5v.75ZM8.25 9a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9Zm0 3.75A.75.75 0 0 1 9 12h6a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75Zm.75 3a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5H9Z" />
-                    </svg>
-                    <span>{{ task.title }}</span>
-                </h3>
-                <p v-if="task.description" class="text-sm text-gray-600 dark:text-slate-300 mt-1">{{ task.description }}
+            class="group flex items-center gap-3 px-4 sm:px-6 py-2.5 sm:py-3 border-b border-gray-100 dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+
+            <!-- Circle checkbox -->
+            <button
+                @click="task.status === 'pendente' ? $emit('complete', task) : null"
+                :aria-label="task.status === 'pendente' ? `Concluir tarefa ${task.title}` : `Tarefa ${task.title} já concluída`"
+                :disabled="task.status === 'concluida'"
+                :class="[
+                    'shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400',
+                    task.status === 'concluida'
+                        ? 'border-emerald-400 bg-emerald-400 cursor-default'
+                        : priorityBorderColor(task.priority) + ' hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer'
+                ]">
+                <svg v-if="task.status === 'concluida'" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+            </button>
+
+            <!-- Task content -->
+            <div class="flex-1 min-w-0">
+                <p :class="['text-sm font-medium truncate', task.status === 'concluida' ? 'line-through text-gray-400 dark:text-slate-500' : 'text-gray-800 dark:text-slate-200']">
+                    {{ task.title }}
                 </p>
-                <div class="text-xs text-gray-500 dark:text-slate-400 mt-2 flex flex-wrap gap-3">
-                    <span>
-                        <span class="font-semibold">Vencimento:</span>
-                        {{ task.due_date || 'Sem data' }}
-                    </span>
-                    <span>
-                        <span class="font-semibold">{{ priorityLabel(task.priority) }}</span>
-                    </span>
-                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold" :class="statusColor(task.status)">
-                        <svg v-if="task.status === 'pendente'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M12 1.5a10.5 10.5 0 1 0 10.5 10.5A10.512 10.512 0 0 0 12 1.5ZM12.75 7.5a.75.75 0 0 0-1.5 0v5.25c0 .199.079.39.22.53l2.25 2.25a.75.75 0 1 0 1.06-1.06l-2.03-2.03V7.5Z" clip-rule="evenodd" />
-                        </svg>
-                        <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M2.25 12a9.75 9.75 0 1 1 19.5 0 9.75 9.75 0 0 1-19.5 0Zm13.36-1.78a.75.75 0 1 0-1.22-.88l-3.26 4.53-1.52-1.52a.75.75 0 0 0-1.06 1.06l2.14 2.14a.75.75 0 0 0 1.14-.09l3.78-5.24Z" clip-rule="evenodd" />
-                        </svg>
-                        {{ task.status === 'pendente' ? 'Pendente' : 'Concluida' }}
-                    </span>
-                </div>
+                <p v-if="task.description" class="text-xs text-gray-400 dark:text-slate-500 truncate mt-0.5">{{ task.description }}</p>
             </div>
-            <div class="flex gap-2 justify-end sm:flex-col">
+
+            <!-- Meta info -->
+            <div class="flex items-center gap-2 shrink-0 text-xs text-gray-400 dark:text-slate-500">
+                <span v-if="task.due_date" class="hidden sm:inline">{{ task.due_date }}</span>
+                <span :class="['px-1.5 py-0.5 rounded font-medium', priorityBadge(task.priority)]">
+                    {{ priorityShortLabel(task.priority) }}
+                </span>
+            </div>
+
+            <!-- Actions (always visible on mobile, hover on desktop) -->
+            <div class="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0">
                 <button @click="$emit('edit', task)"
                     :aria-label="`Editar tarefa ${task.title}`"
-                    class="inline-flex items-center justify-center gap-1 text-blue-700 dark:text-blue-300 text-sm font-semibold px-2 py-1 bg-blue-50 dark:bg-blue-950/50 rounded hover:bg-blue-100 dark:hover:bg-blue-900/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4" aria-hidden="true">
-                        <path d="M16.862 3.487a2.625 2.625 0 1 1 3.712 3.712l-11.25 11.25a2.25 2.25 0 0 1-.95.55l-3.7 1.01a.75.75 0 0 1-.92-.92l1.01-3.7a2.25 2.25 0 0 1 .55-.95l11.25-11.25Z" />
+                    class="p-1.5 rounded-md text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                     </svg>
-                    Editar
-                </button>
-                <button v-if="task.status === 'pendente'" @click="$emit('complete', task)"
-                    :aria-label="`Concluir tarefa ${task.title}`"
-                    class="inline-flex items-center justify-center gap-1 text-emerald-700 dark:text-emerald-300 text-sm font-semibold px-2 py-1 bg-emerald-50 dark:bg-emerald-950/50 rounded hover:bg-emerald-100 dark:hover:bg-emerald-900/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M2.25 12a9.75 9.75 0 1 1 19.5 0 9.75 9.75 0 0 1-19.5 0Zm13.36-1.78a.75.75 0 1 0-1.22-.88l-3.26 4.53-1.52-1.52a.75.75 0 0 0-1.06 1.06l2.14 2.14a.75.75 0 0 0 1.14-.09l3.78-5.24Z" clip-rule="evenodd" />
-                    </svg>
-                    Concluir
                 </button>
                 <button @click="$emit('delete', task)"
                     :aria-label="`Excluir tarefa ${task.title}`"
-                    class="inline-flex items-center justify-center gap-1 text-red-700 dark:text-red-300 text-sm font-semibold px-2 py-1 bg-red-50 dark:bg-red-950/50 rounded hover:bg-red-100 dark:hover:bg-red-900/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07A3 3 0 0 1 15.916 22.5H8.084a3 3 0 0 1-2.992-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478 48.567 48.567 0 0 1 3.878-.512v-.227A2.25 2.25 0 0 1 9.75 2.25h4.5a2.25 2.25 0 0 1 2.25 2.228ZM10.5 6a.75.75 0 0 0-1.5 0v11.25a.75.75 0 0 0 1.5 0V6Zm4.5 0a.75.75 0 0 0-1.5 0v11.25a.75.75 0 0 0 1.5 0V6Z" clip-rule="evenodd" />
+                    class="p-1.5 rounded-md text-gray-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                     </svg>
-                    Excluir
                 </button>
             </div>
         </li>
     </ul>
+
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 p-4" aria-label="Tarefas em grelha">
+        <article v-for="task in tasks" :key="task.id"
+            class="group rounded-xl border border-gray-200 dark:border-slate-700 bg-transparent p-4 flex flex-col gap-3 hover:shadow-md transition-shadow">
+            <div class="flex items-start gap-3">
+                <button
+                    @click="task.status === 'pendente' ? $emit('complete', task) : null"
+                    :aria-label="task.status === 'pendente' ? `Concluir tarefa ${task.title}` : `Tarefa ${task.title} já concluída`"
+                    :disabled="task.status === 'concluida'"
+                    :class="[
+                        'mt-0.5 shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400',
+                        task.status === 'concluida'
+                            ? 'border-emerald-400 bg-emerald-400 cursor-default'
+                            : priorityBorderColor(task.priority) + ' hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer'
+                    ]">
+                    <svg v-if="task.status === 'concluida'" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </button>
+                <div class="min-w-0">
+                    <p :class="['text-sm font-semibold', task.status === 'concluida' ? 'line-through text-gray-400 dark:text-slate-500' : 'text-gray-800 dark:text-slate-100']">
+                        {{ task.title }}
+                    </p>
+                    <p v-if="task.description" class="text-xs text-gray-500 dark:text-slate-400 mt-1 line-clamp-3">
+                        {{ task.description }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-auto flex items-center justify-between gap-2 text-xs text-gray-500 dark:text-slate-400">
+                <span>{{ task.due_date || 'Sem data' }}</span>
+                <span :class="['px-2 py-0.5 rounded font-medium', priorityBadge(task.priority)]">
+                    {{ priorityShortLabel(task.priority) }}
+                </span>
+            </div>
+
+            <div class="flex items-center justify-end gap-1 pt-1 border-t border-gray-100 dark:border-slate-700">
+                <button @click="$emit('edit', task)"
+                    :aria-label="`Editar tarefa ${task.title}`"
+                    class="p-1.5 rounded-md text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                </button>
+                <button @click="$emit('delete', task)"
+                    :aria-label="`Excluir tarefa ${task.title}`"
+                    class="p-1.5 rounded-md text-gray-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </article>
+    </div>
 </template>
 
 <script setup>
-const props = defineProps({
-    tasks: Array
+defineProps({
+    tasks: Array,
+    viewMode: {
+        type: String,
+        default: 'lista',
+    },
 });
+defineEmits(['edit', 'complete', 'delete']);
 
-function priorityColor(priority) {
-    if (priority === 'alta') return 'text-red-700 dark:text-red-300';
-    if (priority === 'media') return 'text-amber-700 dark:text-amber-300';
-    return 'text-emerald-700 dark:text-emerald-300';
+function priorityBorderColor(priority) {
+    if (priority === 'alta') return 'border-red-400';
+    if (priority === 'media') return 'border-amber-400';
+    return 'border-blue-300';
 }
 
-function priorityLabel(priority) {
-    if (priority === 'alta') return 'Prioridade: Alta';
-    if (priority === 'media') return 'Prioridade: Media';
-    return 'Prioridade: Baixa';
+function priorityBadge(priority) {
+    if (priority === 'alta') return 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400';
+    if (priority === 'media') return 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400';
+    return 'bg-blue-50 text-blue-500 dark:bg-blue-900/30 dark:text-blue-400';
 }
 
-function statusColor(status) {
-    return status === 'concluida'
-        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200'
-        : 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200';
+function priorityShortLabel(priority) {
+    if (priority === 'alta') return 'Alta';
+    if (priority === 'media') return 'Média';
+    return 'Baixa';
 }
 </script>

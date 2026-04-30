@@ -17,7 +17,7 @@
             })();
         </script>
     </head>
-    <body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-100 text-slate-900 transition-colors dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dark:text-slate-100">
+    <body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-100 text-slate-900 transition-colors dark:bg-[radial-gradient(circle_at_top,_#0f172a,_#172554_35%,_#020617_70%)] dark:text-slate-100">
         <button
             id="theme-toggle"
             type="button"

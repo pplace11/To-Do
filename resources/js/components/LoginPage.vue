@@ -14,22 +14,22 @@
                 isLeaving ? 'scale-[0.985]' : 'scale-100'
             ]" aria-labelledby="login-title">
                 <div :class="[
-                    'order-2 flex flex-col justify-center px-6 py-8 transition-all duration-500 ease-out sm:px-10 lg:order-1 lg:px-14 lg:py-14',
+                    'order-1 flex flex-col justify-center px-6 py-8 transition-all duration-500 ease-out sm:px-10 lg:order-1 lg:px-14 lg:py-14',
                     isLeaving ? '-translate-x-10 opacity-0' : 'translate-x-0 opacity-100'
                 ]">
                     <a href="/" class="mx-auto inline-flex w-fit items-center gap-3 rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:text-blue-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:text-blue-300" aria-label="Voltar para a pagina inicial">
-                        <img :src="'/image/logo/ToDo.png'" alt="To-Do App" class="h-16 w-auto">
+                        <img :src="'/image/logo/ToDo.png'" alt="To-Do App" class="h-10 sm:h-14 lg:h-16 w-auto">
                     </a>
 
-                    <div class="mt-8 max-w-md">
+                    <div class="mt-6 sm:mt-8 max-w-md">
                         <p class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-600 dark:text-blue-300">Acesso ao To-Do App</p>
-                        <h1 id="login-title" class="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl">Bem-vindo de volta</h1>
+                        <h1 id="login-title" class="mt-3 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">Bem-vindo de volta</h1>
                         <p class="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base">
                             Entre para gerir tarefas, acompanhar prioridades e manter o trabalho da equipa sempre organizado.
                         </p>
                     </div>
 
-                    <form @submit.prevent="submitLogin" class="mt-8 space-y-5">
+                    <form @submit.prevent="pendingTwoFactor ? submitTwoFactor() : submitLogin()" class="mt-8 space-y-5">
                         <div>
                             <label for="email" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Email</label>
                             <div class="group relative">
@@ -86,7 +86,21 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-300 sm:flex-row sm:items-center sm:justify-between">
+                        <div v-if="pendingTwoFactor">
+                            <label for="two-factor-code" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Código de verificação</label>
+                            <input
+                                id="two-factor-code"
+                                v-model="twoFactorCode"
+                                type="text"
+                                inputmode="numeric"
+                                maxlength="6"
+                                required
+                                class="w-full rounded-2xl border border-slate-200 bg-white/85 py-3 px-4 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-blue-400 dark:focus:ring-blue-500/20"
+                                placeholder="Introduza o código de 6 dígitos">
+                            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Verifique o código enviado para o seu email.</p>
+                        </div>
+
+                        <div v-if="!pendingTwoFactor" class="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-300 sm:flex-row sm:items-center sm:justify-between">
                             <label class="inline-flex items-center gap-3 font-medium">
                                 <input v-model="remember" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800">
                                 Lembrar de mim
@@ -99,20 +113,28 @@
                             type="submit"
                             :disabled="isLoading"
                             class="w-full rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:translate-y-[-1px] hover:shadow-xl hover:shadow-blue-500/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-70">
-                            {{ isLoading ? 'Entrando...' : 'Entrar' }}
+                            {{ isLoading ? (pendingTwoFactor ? 'A validar...' : 'Entrando...') : (pendingTwoFactor ? 'Validar código' : 'Entrar') }}
+                        </button>
+
+                        <button
+                            v-if="pendingTwoFactor"
+                            type="button"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                            @click="resetTwoFactorState">
+                            Voltar
                         </button>
                     </form>
                 </div>
 
                 <div :class="[
-                    'order-1 flex items-center bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-700 px-6 py-8 text-white transition-all duration-500 ease-out lg:order-2 lg:px-14 lg:py-14',
+                    'order-2 flex items-center bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-700 px-6 py-8 text-white transition-all duration-500 ease-out lg:order-2 lg:px-14 lg:py-14',
                     isLeaving ? 'translate-x-10 opacity-0' : 'translate-x-0 opacity-100'
                 ]">
-                    <div class="w-full">
+                    <div class="flex w-full justify-center">
                         <div class="relative max-w-md rounded-[2rem] border border-white/20 bg-white/10 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-sm sm:p-8">
                             <button
                                 type="button"
-                                class="absolute -right-5 -top-11 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-white/15 text-white shadow-lg backdrop-blur transition hover:scale-105 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50"
+                                class="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-white/15 text-white shadow-lg backdrop-blur transition hover:scale-105 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 lg:-right-5 lg:-top-11"
                                 aria-label="Fechar pagina"
                                 title="Fechar"
                                 @click="navigateWithTransition('/')">
@@ -123,12 +145,12 @@
                             </button>
 
                             <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-100">To-Do App</p>
-                            <h2 class="mt-4 text-3xl font-black tracking-tight sm:text-4xl">Organize tudo num so lugar</h2>
-                            <p class="mt-4 text-sm leading-6 text-blue-50/90 sm:text-base">
+                            <h2 class="mt-4 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">Organize tudo num so lugar</h2>
+                            <p class="mt-3 text-sm leading-6 text-blue-50/90 hidden sm:block">
                                 Crie a sua conta para centralizar tarefas, definir prazos e acompanhar o progresso diario sem confusao.
                             </p>
 
-                            <div class="mt-8 grid gap-3 text-sm text-blue-50/90 sm:grid-cols-2">
+                            <div class="mt-4 sm:mt-8 grid grid-cols-2 gap-3 text-sm text-blue-50/90">
                                 <div class="rounded-2xl bg-white/10 px-4 py-3">
                                     <span class="block text-2xl font-black text-white">Listas</span>
                                     <span>Organize tarefas por prioridade</span>
@@ -182,6 +204,8 @@ const errorMessage = ref('');
 const isDark = ref(false);
 const isLeaving = ref(false);
 const showPassword = ref(false);
+const pendingTwoFactor = ref(false);
+const twoFactorCode = ref('');
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 const themeLabel = computed(() => (isDark.value ? 'Ativar tema claro' : 'Ativar tema escuro'));
@@ -232,13 +256,58 @@ async function submitLogin() {
             }),
         });
 
-        if (response.ok) {
-            window.location.href = '/todo';
+        const data = await response.json().catch(() => ({}));
+
+        if (response.ok && data?.requires_two_factor) {
+            pendingTwoFactor.value = true;
+            errorMessage.value = data?.message || 'Introduza o código enviado para o seu email.';
             return;
         }
 
-        const data = await response.json().catch(() => ({}));
+        if (response.ok) {
+            window.location.href = data?.redirect || '/todo';
+            return;
+        }
+
         errorMessage.value = data?.message || data?.errors?.email?.[0] || 'Nao foi possivel entrar.';
+    } catch {
+        errorMessage.value = 'Erro de conexao. Tente novamente.';
+    } finally {
+        isLoading.value = false;
+    }
+}
+
+function resetTwoFactorState() {
+    pendingTwoFactor.value = false;
+    twoFactorCode.value = '';
+    errorMessage.value = '';
+}
+
+async function submitTwoFactor() {
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    try {
+        const response = await fetch('/login/verify-2fa', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
+            },
+            body: JSON.stringify({
+                code: twoFactorCode.value,
+            }),
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (response.ok) {
+            window.location.href = data?.redirect || '/todo';
+            return;
+        }
+
+        errorMessage.value = data?.message || 'Nao foi possivel validar o codigo.';
     } catch {
         errorMessage.value = 'Erro de conexao. Tente novamente.';
     } finally {

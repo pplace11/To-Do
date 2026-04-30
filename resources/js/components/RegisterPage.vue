@@ -14,16 +14,16 @@
                 isLeaving ? 'scale-[0.985]' : 'scale-100'
             ]" aria-labelledby="register-title">
                 <div :class="[
-                    'order-2 flex flex-col justify-center px-6 py-8 transition-all duration-500 ease-out sm:px-10 lg:order-2 lg:px-14 lg:py-14',
+                    'order-1 flex flex-col justify-center px-6 py-8 transition-all duration-500 ease-out sm:px-10 lg:order-2 lg:px-14 lg:py-14',
                     isLeaving ? 'translate-x-10 opacity-0' : 'translate-x-0 opacity-100'
                 ]">
                     <a href="/" class="mx-auto inline-flex w-fit items-center gap-3 rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:text-blue-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:text-blue-300" aria-label="Voltar para a pagina inicial">
-                        <img :src="'/image/logo/ToDo.png'" alt="To-Do App" class="h-16 w-auto">
+                        <img :src="'/image/logo/ToDo.png'" alt="To-Do App" class="h-10 sm:h-14 lg:h-16 w-auto">
                     </a>
 
-                    <div class="mt-8 max-w-md">
+                    <div class="mt-6 sm:mt-8 max-w-md">
                         <p class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-600 dark:text-blue-300">Criar acesso</p>
-                        <h1 id="register-title" class="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl">Crie a sua conta</h1>
+                        <h1 id="register-title" class="mt-3 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">Crie a sua conta</h1>
                         <p class="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base">
                             Crie o seu acesso para gerir tarefas, definir prioridades e acompanhar entregas num unico painel.
                         </p>
@@ -154,14 +154,14 @@
                 </div>
 
                 <div :class="[
-                    'order-1 flex items-center bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-700 px-6 py-8 text-white transition-all duration-500 ease-out lg:order-1 lg:px-14 lg:py-14',
+                    'order-2 flex items-center bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-700 px-6 py-8 text-white transition-all duration-500 ease-out lg:order-1 lg:px-14 lg:py-14',
                     isLeaving ? '-translate-x-10 opacity-0' : 'translate-x-0 opacity-100'
                 ]">
-                    <div class="w-full">
+                    <div class="flex w-full justify-center">
                         <div class="relative max-w-md rounded-[2rem] border border-white/20 bg-white/10 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-sm sm:p-8">
                             <button
                                 type="button"
-                                class="absolute -left-5 -top-11 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-white/15 text-white shadow-lg backdrop-blur transition hover:scale-105 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50"
+                                class="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-white/15 text-white shadow-lg backdrop-blur transition hover:scale-105 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 lg:-left-5 lg:right-auto lg:-top-11"
                                 aria-label="Fechar pagina"
                                 title="Fechar"
                                 @click="navigateWithTransition('/')">
@@ -172,12 +172,12 @@
                             </button>
 
                             <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-100">To-Do App</p>
-                            <h2 class="mt-4 text-3xl font-black tracking-tight sm:text-4xl">Retome as suas tarefas</h2>
-                            <p class="mt-4 text-sm leading-6 text-blue-50/90 sm:text-base">
+                            <h2 class="mt-4 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">Retome as suas tarefas</h2>
+                            <p class="mt-3 text-sm leading-6 text-blue-50/90 hidden sm:block">
                                 Ja possui conta? Entre para continuar a acompanhar listas, prioridades e o progresso do seu trabalho.
                             </p>
 
-                            <div class="mt-8 grid gap-3 text-sm text-blue-50/90 sm:grid-cols-2">
+                            <div class="mt-4 sm:mt-8 grid grid-cols-2 gap-3 text-sm text-blue-50/90">
                                 <div class="rounded-2xl bg-white/10 px-4 py-3">
                                     <span class="block text-2xl font-black text-white">Tarefas</span>
                                     <span>Visualize o que precisa fazer</span>
@@ -284,12 +284,13 @@ async function submitRegister() {
             }),
         });
 
+        const data = await response.json().catch(() => ({}));
+
         if (response.ok) {
-            window.location.href = '/todo';
+            window.location.href = data?.redirect || '/todo';
             return;
         }
 
-        const data = await response.json().catch(() => ({}));
         errorMessage.value = data?.message || Object.values(data?.errors || {}).flat()[0] || 'Nao foi possivel criar conta.';
     } catch {
         errorMessage.value = 'Erro de conexao. Tente novamente.';
