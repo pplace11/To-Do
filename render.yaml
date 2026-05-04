@@ -1,0 +1,69 @@
+databases:
+  - name: todo-db
+    databaseName: todo
+    user: todo_user
+    plan: free
+
+services:
+  - type: web
+    name: todo-laravel
+    runtime: php
+    plan: free
+    buildCommand: "chmod +x render-build.sh && ./render-build.sh"
+    startCommand: "php artisan serve --host=0.0.0.0 --port=$PORT"
+    envVars:
+      # ── Application ─────────────────────────────────────────────────────────
+      - key: APP_NAME
+        value: "To-Do"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      # Set APP_URL to your actual Render URL after first deploy
+      # e.g. https://todo-laravel.onrender.com
+      - key: APP_URL
+        value: https://todo-laravel.onrender.com
+
+      # ── Database (linked from PostgreSQL service above) ───────────────────
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: todo-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: todo-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: todo-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: todo-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: todo-db
+          property: password
+
+      # ── Session / Cache (use database so they survive restarts) ───────────
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_LIFETIME
+        value: 120
+      - key: CACHE_STORE
+        value: database
+
+      # ── Queue ────────────────────────────────────────────────────────────
+      - key: QUEUE_CONNECTION
+        value: sync
+
+      # ── Logging (write to stderr so it appears in Render dashboard) ───────
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
