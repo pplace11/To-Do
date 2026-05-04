@@ -1,209 +1,165 @@
-# To-Do App - Gestor de Tarefas
+# ✅ To-Do App
 
-Uma aplicação web moderna e intuitiva para gestão de tarefas, desenvolvida com **Laravel 12**, **Vue 3** e **Tailwind CSS**.
+To-Do App e uma aplicacao web em Laravel para gestao de tarefas pessoais, com autenticação, perfil de utilizador, autenticação de dois fatores, filtros, calendario, partilha de tarefas e interface responsiva em Vue.
 
-## 🎯 Funcionalidades
+---
 
-✅ **CRUD de Tarefas** - Criar, ler, atualizar e excluir tarefas  
-✅ **Filtros Avançados** - Por estado, prioridade e data de vencimento  
-✅ **Edição Modal** - Interface amigável para editar tarefas  
-✅ **Notificações** - Feedback visual de sucesso e erro  
-✅ **Design Responsivo** - Funciona perfeitamente em qualquer dispositivo  
-✅ **Segurança** - Autenticação e autorização com policies  
-✅ **Testes Automatizados** - Cobertura de testes unitários e de integração  
+## 📋 Funcionalidades
 
-## 🚀 Quick Start
+### 📝 Gestao de Tarefas
+- ✅ Criacao, consulta, edicao e remocao de tarefas
+- 🏷️ Definicao de prioridade alta, media e baixa
+- 📅 Configuracao de data de vencimento para organizacao das tarefas
+- ✔️ Atualizacao do estado entre pendente e concluida
 
-### Pré-requisitos
-- PHP 8.2+
-- Node.js 18+
-- MySQL 8+
-- Composer
+### 🔎 Organizacao e Visualizacao
+- 📂 Filtros por estado, prioridade e data
+- 📆 Vista de calendario para acompanhar tarefas planeadas
+- 📋 Alternancia entre vista em lista e grelha
+- 📊 Resumo com total de tarefas, pendentes e concluidas
 
-### Instalação
+### 👤 Autenticacao e Perfil
+- 🔐 Registo e login de utilizadores
+- ✉️ Autenticacao de dois fatores por codigo enviado por email
+- 🙍 Gestao de perfil com atualizacao de nome, email e palavra-passe
+- 🚪 Encerramento de sessao com protecao de rotas autenticadas
 
+### 🤝 Colaboracao e Experiencia
+- 📤 Partilha de tarefas com outros utilizadores por email
+- 🔔 Notificacoes visuais para operacoes de sucesso e erro
+- 🌗 Suporte a tema claro e escuro
+- 📱 Interface adaptada para desktop e dispositivos moveis
+
+## 🛠️ Tecnologias Utilizadas
+
+- Laravel 13
+- PHP 8.3+
+- Vue 3
+- Tailwind CSS 4
+- Vite 8
+- Pest
+- SQLite ou MySQL
+
+## ⚙️ Como Executar o Projeto
+
+### ✅ Pre-requisitos
+Certifique-se de ter instalado PHP 8.3+, Composer, Node.js, npm e uma base de dados configurada no ficheiro `.env`.
+
+### 1️⃣ Clonar o repositorio
 ```bash
-# 1. Clonar repositório
-git clone <repository-url>
+git clone <url-do-repositorio>
 cd To-Do
+```
 
-# 2. Instalar dependências PHP
+### 2️⃣ Instalacao e configuracao automatica
+Use o script de setup para instalar dependencias, criar o `.env` caso necessario, gerar a chave da aplicacao, executar migrations e compilar os assets:
+```bash
+composer run setup
+```
+
+### 3️⃣ Configuracao manual
+```bash
 composer install
-
-# 3. Instalar dependências Node.js
-npm install
-
-# 4. Configurar ambiente
 cp .env.example .env
 php artisan key:generate
-
-# 5. Executar migrations
 php artisan migrate
-
-# 6. Iniciar servidores (em terminais separados)
-php artisan serve          # Terminal 1
-npm run dev                # Terminal 2
+npm install
+npm run build
 ```
 
-Acesse: `http://localhost:8000`
-
-## 📊 Estrutura do Projeto
-
+### 4️⃣ Executar o ambiente de desenvolvimento
+```bash
+composer run dev
 ```
-To-Do/
-├── app/
-│   ├── Models/Task.php
-│   ├── Http/Controllers/TaskController.php
-│   └── Policies/TaskPolicy.php
-├── database/
-│   ├── migrations/
-│   └── factories/TaskFactory.php
-├── resources/
-│   ├── js/components/
-│   │   ├── ToDoApp.vue
-│   │   ├── TaskForm.vue
-│   │   ├── TaskList.vue
-│   │   ├── TaskEditModal.vue
-│   │   └── NotificationToast.vue
-│   ├── css/app.css
-│   └── views/welcome.blade.php
-├── routes/
-│   ├── web.php
-│   └── tasks.php
-├── tests/
-│   ├── Feature/TaskTest.php
-│   └── Unit/TaskModelTest.php
-└── DOCUMENTATION.md
-```
+
+### 5️⃣ Aceder a aplicacao
+Abra http://localhost:8000
 
 ## 🧪 Testes
 
 ```bash
-# Executar todos os testes
-php artisan test
-
-# Testes com coverage
-php artisan test --coverage
-
-# Testes específicos
-php artisan test tests/Feature/TaskTest.php
+composer test
 ```
 
-## 🛠️ Desenvolvimento
-
-### Scripts Disponíveis
+Ou, se preferir:
 
 ```bash
-npm run dev      # Iniciar Vite dev server
-npm run build    # Build para produção
-php artisan test # Executar testes
-php artisan migrate # Executar migrations
+php artisan test
 ```
 
-## 📚 Documentação Completa
+## 📁 Estrutura do Projeto
 
-Consulte [DOCUMENTATION.md](./DOCUMENTATION.md) para:
-- Arquitetura detalhada
-- Especificação de API
-- Guia de contribuição
-- Melhorias futuras
-
-## 🔐 Segurança
-
-- ✓ Validação de dados no backend
-- ✓ Autenticação obrigatória
-- ✓ Autorização por policies
-- ✓ Proteção contra CSRF
-- ✓ SQL injection prevention
-
-## 📱 Responsividade
-
-- 📱 Mobile (320px+)
-- 📱 Tablet (768px+)
-- 💻 Desktop (1024px+)
-
-## 🌐 Tecnologias
-
-| Camada | Tecnologia |
-|--------|-----------|
-| Backend | Laravel 12 |
-| Frontend | Vue 3 |
-| Estilização | Tailwind CSS 4 |
-| Build | Vite |
-| Testes | Pest |
-| Database | MySQL 8 |
-
-## 📝 Estrutura de Commit
-
-Seguimos [Conventional Commits](https://www.conventionalcommits.org/):
-
+```text
+📁 To-Do/
+├── 📄 artisan
+├── 📄 composer.json
+├── 📄 package.json
+├── 📄 phpunit.xml
+├── 📄 README.md
+├── 📄 vite.config.js
+├── 📁 app/
+│   ├── 📁 Http/
+│   │   └── 📁 Controllers/
+│   │       ├── 📄 AuthController.php
+│   │       ├── 📄 ProfileController.php
+│   │       └── 📄 TaskController.php
+│   ├── 📁 Models/
+│   │   ├── 📄 Task.php
+│   │   └── 📄 User.php
+│   ├── 📁 Policies/
+│   │   └── 📄 TaskPolicy.php
+│   └── 📁 Providers/
+├── 📁 bootstrap/
+├── 📁 config/
+├── 📁 database/
+│   ├── 📁 factories/
+│   ├── 📁 migrations/
+│   └── 📁 seeders/
+├── 📁 public/
+│   └── 📁 build/
+├── 📁 resources/
+│   ├── 📁 css/
+│   ├── 📁 js/
+│   │   ├── 📄 app.js
+│   │   ├── 📄 welcome.js
+│   │   └── 📁 components/
+│   │       ├── 📄 CalendarView.vue
+│   │       ├── 📄 LoginPage.vue
+│   │       ├── 📄 ProfilePage.vue
+│   │       ├── 📄 RegisterPage.vue
+│   │       ├── 📄 ShareTaskModal.vue
+│   │       ├── 📄 TaskCreatePage.vue
+│   │       ├── 📄 TaskEditModal.vue
+│   │       ├── 📄 TaskForm.vue
+│   │       ├── 📄 TaskList.vue
+│   │       ├── 📄 ToDoApp.vue
+│   │       └── 📄 WelcomeApp.vue
+│   └── 📁 views/
+│       ├── 📁 auth/
+│       ├── 📄 todo.blade.php
+│       └── 📄 welcome.blade.php
+├── 📁 routes/
+│   ├── 📄 console.php
+│   ├── 📄 tasks.php
+│   └── 📄 web.php
+├── 📁 storage/
+├── 📁 tests/
+│   ├── 📄 Pest.php
+│   ├── 📄 TestCase.php
+│   ├── 📁 Feature/
+│   │   └── 📄 TaskTest.php
+│   └── 📁 Unit/
+│       └── 📄 TaskModelTest.php
+└── 📁 vendor/
 ```
-feat: adicionar nova funcionalidade
-fix: corrigir bug
-docs: atualizar documentação
-test: adicionar testes
-refactor: refatorar código
-```
 
-## 🤝 Contribuição
+## 📝 Observacoes
 
-1. Fork o repositório
-2. Crie uma branch (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'feat: adicionar feature incrível'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT.
+- A interface principal da aplicacao carrega a SPA Vue dentro das views Blade.
+- O sistema inclui autenticacao de dois fatores com envio de codigo por email.
+- As rotas de tarefas estao protegidas por autenticacao e devolvem respostas JSON.
+- Existe suporte para partilha de tarefas entre utilizadores autenticados.
 
 ## 👥 Autor
 
-Desenvolvido como parte do projeto Inovcorp To-Do.
-
-## 📧 Suporte
-
-Para suporte, abra uma issue no repositório.
-
----
-
-**Versão:** 1.0.0  
-**Última Atualização:** Abril 2026
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Desenvolvido no contexto do projeto Inovcorp.

@@ -1,69 +1,102 @@
-databases:
-  - name: todo-db
-    databaseName: todo
-    user: todo_user
-    plan: free
+# =============================================================================
+# render.yaml — Ficheiro de configuração de infraestrutura do Render.com
+#
+# Define todos os recursos necessários para o deploy da aplicação To-Do:
+#   - Uma base de dados PostgreSQL gerida pelo Render
+#   - Um serviço web PHP (Laravel) ligado a essa base de dados
+#
+# Este ficheiro é lido automaticamente pelo Render ao fazer deploy via Blueprint.
+# As variáveis de ambiente injetadas aqui substituem as do ficheiro .env em produção.
+# =============================================================================
 
+# ─── Base de dados PostgreSQL ─────────────────────────────────────────────────
+# O Render cria e gere automaticamente uma instância PostgreSQL com estas definições.
+# As credenciais geradas são depois injetadas no serviço web via `fromDatabase`.
+databases:
+  - name: todo-db          # Nome interno do serviço de BD no Render (usado nas referências fromDatabase)
+    databaseName: todo     # Nome real da base de dados criada no PostgreSQL
+    user: todo_user        # Utilizador PostgreSQL criado para a aplicação
+    plan: free             # Plano gratuito do Render (limitações de recursos aplicam-se)
+
+# ─── Serviços web ─────────────────────────────────────────────────────────────
 services:
-  - type: web
-    name: todo-laravel
-    runtime: php
-    plan: free
+  - type: web              # Tipo de serviço: web (expõe uma porta HTTP pública)
+    name: todo-laravel     # Nome do serviço no dashboard do Render
+    runtime: php           # Runtime: o Render usa o buildpack PHP oficial
+    plan: free             # Plano gratuito (sleep após inatividade, recursos limitados)
+
+    # Comando executado durante o build (antes de iniciar o servidor):
+    # 1. Torna o script executável (necessário pois o git pode não preservar permissões)
+    # 2. Executa o render-build.sh que instala deps, compila assets e corre migrações
     buildCommand: "chmod +x render-build.sh && ./render-build.sh"
+
+    # Comando executado para iniciar o servidor após o build:
+    # $PORT é injetado automaticamente pelo Render — a aplicação deve ouvir nesta porta
     startCommand: "php artisan serve --host=0.0.0.0 --port=$PORT"
+
+    # ── Variáveis de ambiente injetadas no container em produção ──────────────
     envVars:
-      # ── Application ─────────────────────────────────────────────────────────
+
+      # ── Aplicação ────────────────────────────────────────────────────────────
       - key: APP_NAME
-        value: "To-Do"
+        value: "To-Do"       # Nome da aplicação (usado em e-mails, notificações, etc.)
       - key: APP_ENV
-        value: production
+        value: production    # Ambiente: ativa otimizações e desativa ferramentas de debug
       - key: APP_DEBUG
-        value: false
+        value: false         # Desativa o modo debug — nunca expor stack traces em produção
       - key: APP_KEY
-        generateValue: true
-      # Set APP_URL to your actual Render URL after first deploy
-      # e.g. https://todo-laravel.onrender.com
+        generateValue: true  # O Render gera automaticamente uma chave aleatória segura (base64)
+                             # Usada pelo Laravel para encriptação de cookies e sessões
+      # Atualizar APP_URL com o URL real do Render após o primeiro deploy
+      # Exemplo: https://todo-laravel.onrender.com
       - key: APP_URL
         value: https://todo-laravel.onrender.com
 
-      # ── Database (linked from PostgreSQL service above) ───────────────────
+      # ── Base de dados (ligada ao serviço PostgreSQL definido acima) ───────────
+      # Os valores são resolvidos dinamicamente pelo Render a partir do serviço todo-db,
+      # evitando a necessidade de hardcoded credentials neste ficheiro.
       - key: DB_CONNECTION
-        value: pgsql
+        value: pgsql         # Driver de base de dados: PostgreSQL
       - key: DB_HOST
         fromDatabase:
-          name: todo-db
-          property: host
+          name: todo-db      # Referência ao serviço de BD definido acima
+          property: host     # Hostname do servidor PostgreSQL gerido pelo Render
       - key: DB_PORT
         fromDatabase:
           name: todo-db
-          property: port
+          property: port     # Porta do PostgreSQL (normalmente 5432)
       - key: DB_DATABASE
         fromDatabase:
           name: todo-db
-          property: database
+          property: database # Nome da base de dados (corresponde a databaseName: todo)
       - key: DB_USERNAME
         fromDatabase:
           name: todo-db
-          property: user
+          property: user     # Utilizador PostgreSQL (corresponde a user: todo_user)
       - key: DB_PASSWORD
         fromDatabase:
           name: todo-db
-          property: password
+          property: password # Palavra-passe gerada automaticamente pelo Render
 
-      # ── Session / Cache (use database so they survive restarts) ───────────
+      # ── Sessão e Cache (usar base de dados para sobreviver a reinicios) ───────
+      # No plano gratuito, o Render reinicia o container periodicamente.
+      # Usar o driver 'database' garante que sessões e cache persistem entre reinicios,
+      # ao contrário de 'file' (que se perderia ao reiniciar) ou 'redis' (serviço extra pago).
       - key: SESSION_DRIVER
-        value: database
+        value: database      # Sessões guardadas na tabela `sessions` da BD
       - key: SESSION_LIFETIME
-        value: 120
+        value: 120           # Duração da sessão em minutos (120 = 2 horas)
       - key: CACHE_STORE
-        value: database
+        value: database      # Cache guardada na tabela `cache` da BD
 
-      # ── Queue ────────────────────────────────────────────────────────────
+      # ── Fila de trabalhos (Queue) ─────────────────────────────────────────────
       - key: QUEUE_CONNECTION
-        value: sync
+        value: sync          # Modo síncrono: jobs executados imediatamente no pedido HTTP
+                             # Adequado para o plano gratuito sem worker de fila dedicado
 
-      # ── Logging (write to stderr so it appears in Render dashboard) ───────
+      # ── Logging ───────────────────────────────────────────────────────────────
       - key: LOG_CHANNEL
-        value: stderr
+        value: stderr        # Escreve logs no stderr — aparece diretamente no dashboard do Render
+                             # Preferível a 'stack' ou 'daily' (ficheiros não persistem no Render)
       - key: LOG_LEVEL
-        value: error
+        value: error         # Nível mínimo de log: apenas erros críticos (omite info/debug/warning)

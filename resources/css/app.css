@@ -1,12 +1,19 @@
+/* Importa o Tailwind CSS v4, incluindo todas as suas utilitarias, componentes e base styles */
 @import 'tailwindcss';
 
+/* Define a variante 'dark' para suporte a modo escuro baseado na classe .dark no elemento pai.
+   Permite usar prefixos como dark:bg-gray-900 nos templates Blade e JS. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Define as fontes a analisar pelo Tailwind para gerar apenas as classes CSS utilizadas (purge/tree-shaking).
+   Inclui as views de paginacao do Laravel, views compiladas em cache, todos os ficheiros Blade e JS do projeto. */
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* Define variaveis de tema globais usadas pelo Tailwind.
+   --font-sans: fonte principal da aplicacao, com fallback para fontes do sistema. */
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
